@@ -1,15 +1,16 @@
 const Task = require("../models/task");
 const asyncWrapper = require("../middleware/async");
 const { createCustomError } = require("../errors/custom-error");
+const { StatusCodes } = require("http-status-codes");
 
 const getAllTasks = asyncWrapper(async (req, res) => {
   const tasks = await Task.find({});
-  res.status(200).json({ tasks });
+  res.status(StatusCodes.OK).json({ tasks });
 });
 
 const createTask = asyncWrapper(async (req, res) => {
   const task = await Task.create(req.body);
-  res.status(201).json({ task });
+  res.status(StatusCodes.CREATED).json({ task });
 });
 
 const getTask = asyncWrapper(async (req, res, next) => {
@@ -17,10 +18,15 @@ const getTask = asyncWrapper(async (req, res, next) => {
   const task = await Task.findOne({ _id: taskID });
 
   if (!task) {
-    return next(createCustomError(`No task with this id: ${taskID}`, 404));
+    return next(
+      createCustomError(
+        `No task with this id: ${taskID}`,
+        StatusCodes.NOT_FOUND,
+      ),
+    );
   }
 
-  res.status(200).json({ task });
+  res.status(StatusCodes.OK).json({ task });
 });
 
 const deleteTask = asyncWrapper(async (req, res) => {
@@ -28,10 +34,15 @@ const deleteTask = asyncWrapper(async (req, res) => {
   const task = await Task.findOneAndDelete({ _id: taskID });
 
   if (!task) {
-    return next(createCustomError(`No task with this id: ${taskID}`, 404));
+    return next(
+      createCustomError(
+        `No task with this id: ${taskID}`,
+        StatusCodes.NOT_FOUND,
+      ),
+    );
   }
 
-  res.status(200).json({ task });
+  res.status(StatusCodes.OK).json({ task });
 });
 
 const updateTask = asyncWrapper(async (req, res) => {
@@ -43,9 +54,14 @@ const updateTask = asyncWrapper(async (req, res) => {
   });
 
   if (!task) {
-    return next(createCustomError(`No task with this id: ${taskID}`, 404));
+    return next(
+      createCustomError(
+        `No task with this id: ${taskID}`,
+        StatusCodes.NOT_FOUND,
+      ),
+    );
   }
-  res.status(200).json({ task });
+  res.status(StatusCodes.OK).json({ task });
 });
 
 module.exports = {
